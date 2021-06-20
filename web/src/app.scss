@@ -1,0 +1,25 @@
+// Bootstrap variables (https://bootstrap-vue.org/docs/reference/theming)
+$body-bg: #fff;
+$body-color: #000;
+
+$theme-colors: (
+  "primary": #36b425,
+  "navbar": rgba(0, 0, 0, 0.75),
+);
+
+//Fonts used in the app
+@import url("https://fonts.googleapis.com/css2?family=Roboto:wght@100;300;400&display=swap");
+
+@font-face {
+  font-family: "Nature";
+  font-weight: 300;
+  font-style: normal;
+  font-display: block;
+  unicode-range: U+000-5FF;
+  src: local("Nature"), url("/fonts/Nature/Nature.woff2") format("woff2"),
+    url("/fonts/Nature/Nature.woff") format("woff");
+}
+
+// Import all the bootstrap stuff
+@import "node_modules/bootstrap/scss/bootstrap.scss";
+@import "node_modules/bootstrap-vue/src/index.scss";

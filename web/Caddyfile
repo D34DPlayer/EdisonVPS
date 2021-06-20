@@ -1,0 +1,24 @@
+{
+  log {
+    level INFO
+    output file /data/access.log {
+      roll_size 10MB
+      roll_keep 10
+    }
+  }
+}
+
+mail.{$DOMAIN_NAME} {
+  tls {$EMAIL}
+  encode gzip
+
+  reverse_proxy mailFront:80
+}
+
+{$DOMAIN_NAME}, www.{$DOMAIN_NAME} {
+  tls {$EMAIL}
+  encode gzip
+
+  root * /usr/share/caddy
+  file_server
+}
