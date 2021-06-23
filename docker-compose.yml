@@ -9,7 +9,7 @@ services:
       - /data/mailu/redis:/data
 
   front:
-    image: mailu/nginx:1_7
+    image: mailu/nginx:1.7
     restart: always
     env_file: mailu.env
     logging:
@@ -32,11 +32,11 @@ services:
       - "traefik.http.routers.mailu-websecure.tls.domains[0].main=${DOMAIN_NAME}"
       - "traefik.http.routers.mailu-websecure.tls.domains[0].sans=mail.${DOMAIN_NAME},smtp.${DOMAIN_NAME}"
       - "traefik.http.routers.mailu-websecure.tls.certresolver=mainresolver"
-      - "traefik.http.routers.mailu-websecure.sevice=mailu-websecure-svc"
+      - "traefik.http.routers.mailu-websecure.service=mailu-websecure-svc"
       - "traefik.http.services.mailu-websecure-svc.loadbalancer.server.port=80"
 
   admin:
-    image: mailu/admin:1_7
+    image: mailu/admin:1.7
     restart: always
     env_file: mailu.env
     volumes:
@@ -46,7 +46,7 @@ services:
       - redis
 
   imap:
-    image: mailu/dovecot:1_7
+    image: mailu/dovecot:1.7
     restart: always
     env_file: mailu.env
     volumes:
@@ -56,7 +56,7 @@ services:
       - front
 
   smtp:
-    image: mailu/postfix:1_7
+    image: mailu/postfix:1.7
     restart: always
     env_file: mailu.env
     volumes:
@@ -65,7 +65,7 @@ services:
       - front
 
   antispam:
-    image: mailu/rspamd:1_7
+    image: mailu/rspamd:1.7
     restart: always
     env_file: mailu.env
     volumes:
@@ -76,7 +76,7 @@ services:
       - front
 
   webmail:
-    image: mailu/rainloop:1_7
+    image: mailu/rainloop:1.7
     restart: always
     env_file: mailu.env
     volumes:
@@ -85,7 +85,7 @@ services:
       - imap
 
   database:
-    image: mailu/postgresql:1_7
+    image: mailu/postgresql:1.7
     restart: always
     env_file: mailu.env
     volumes:
@@ -95,9 +95,8 @@ services:
   # TRAEFIK
   traefik:
     restart: always
-    image: traefik:alpine
+    image: traefik:v2.4
     command:
-      - "--global.sendAnonymousUsage=false"
       - "--providers.docker=true"
       - "--providers.docker.exposedbydefault=false"
       - "--entrypoints.web.address=:80"

@@ -12,4 +12,8 @@ Vue.config.productionTip = false;
 new Vue({
   router,
   render: (h) => h(App),
+  mounted() {
+    //So that the prerenderer knows when to take the snapshot
+    document.dispatchEvent(new Event("render-event"));
+  },
 }).$mount("#app");
