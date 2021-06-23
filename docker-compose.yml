@@ -24,8 +24,16 @@ services:
       - "993:993"
     volumes:
       - /data/mailu/overrides/nginx:/overrides
-      - /data/mailu/certs/${DOMAIN_NAME}.crt:/certs/cert.pem
-      - /data/traefik/ssl/${DOMAIN_NAME}.key:/certs/key.pem
+      - /data/mailu/certs:/certs
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.mailu-websecure.rule=Host(`mail.${DOMAIN_NAME}`)"
+      - "traefik.http.routers.mailu-websecure.entrypoints=websecure"
+      - "traefik.http.routers.mailu-websecure.tls.domains[0].main=${DOMAIN_NAME}"
+      - "traefik.http.routers.mailu-websecure.tls.domains[0].sans=mail.${DOMAIN_NAME},smtp.${DOMAIN_NAME}"
+      - "traefik.http.routers.mailu-websecure.tls.certresolver=mainresolver"
+      - "traefik.http.routers.mailu-websecure.sevice=mailu-websecure-svc"
+      - "traefik.http.services.mailu-websecure-svc.loadbalancer.server.port=80"
 
   admin:
     image: mailu/admin:1_7
@@ -86,16 +94,20 @@ services:
 
   # TRAEFIK
   traefik:
+    restart: always
     image: traefik:alpine
     command:
+      - "--global.sendAnonymousUsage=false"
       - "--providers.docker=true"
       - "--providers.docker.exposedbydefault=false"
       - "--entrypoints.web.address=:80"
+      - "--entrypoints.web.http.redirections.entryPoint.to=websecure"
+      - "--entrypoints.web.http.redirections.entryPoint.scheme=https"
       - "--entrypoints.websecure.address=:443"
       - "--certificatesresolvers.mainresolver.acme.httpchallenge=true"
       - "--certificatesresolvers.mainresolver.acme.httpchallenge.entrypoint=web"
-      - "--certificatesresolvers.myresolver.acme.email=d34dplayer@protonmail.com"
-      - "--certificatesresolvers.mainresolver.acme.storage=letsencrypt/acme.json"
+      - "--certificatesresolvers.mainresolver.acme.email=${EMAIL}"
+      - "--certificatesresolvers.mainresolver.acme.storage=/letsencrypt/acme.json"
     ports:
       - "80:80"
       - "443:443"
@@ -105,9 +117,10 @@ services:
 
   certdumper:
     restart: always
-    image: mailu/traefik-certdumper:$VERSION
+    image: mailu/traefik-certdumper:master
     environment:
-      - DOMAIN=${DOMAIN_NAME}
+      - DOMAIN=mail.${DOMAIN_NAME}
+      - TRAEFIK_VERSION=v2
     volumes:
       - "/data/traefik:/traefik"
       - "/data/mailu/certs:/output"
@@ -124,7 +137,7 @@ services:
     restart: always
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.website.rule=Host(`${DOMAIN_NAME}`)"
+      - "traefik.http.routers.website.rule=Host(`www.${DOMAIN_NAME}`,`${DOMAIN_NAME}`)"
       - "traefik.http.routers.website.entrypoints=websecure"
       - "traefik.http.routers.website.tls.certresolver=mainresolver"
 networks:
