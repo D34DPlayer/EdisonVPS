@@ -7,6 +7,7 @@ ARG VUE_APP_DOMAIN_NAME=localhost
 ARG VUE_APP_MAIL_SERVICE_ID=none
 ARG VUE_APP_MAIL_TEMPLATE_ID=none
 ARG VUE_APP_MAIL_USER_ID=none
+# prerender deps
 RUN apt-get update && \
     apt-get -y install ca-certificates fonts-liberation                         \
     libappindicator3-1 libasound2 libatk-bridge2.0-0 libatk1.0-0 libc6          \
@@ -21,6 +22,9 @@ COPY . .
 RUN npm run build
 
 # production stage
-FROM caddy:2-alpine
-COPY ./Caddyfile /etc/caddy/Caddyfile
-COPY --from=build-stage /app/dist /usr/share/caddy
+FROM nginx:1.17
+COPY ./nginx.conf /etc/nginx/nginx.conf
+WORKDIR /code
+COPY --from=build-stage /app/dist .
+EXPOSE 8080:8080
+CMD ["nginx", "-g", "daemon off;"]
