@@ -1,0 +1,136 @@
+version: "3.6" #2.2?
+
+services:
+  # EMAIL
+  redis:
+    image: redis:alpine
+    restart: always
+    volumes:
+      - /data/mailu/redis:/data
+
+  front:
+    image: mailu/nginx:1_7
+    restart: always
+    env_file: mailu.env
+    logging:
+      driver: json-file
+    ports:
+      - "25:25"
+      - "465:465"
+      - "587:587"
+      - "110:110"
+      - "995:995"
+      - "143:143"
+      - "993:993"
+    volumes:
+      - /data/mailu/overrides/nginx:/overrides
+      - /data/mailu/certs/${DOMAIN_NAME}.crt:/certs/cert.pem
+      - /data/traefik/ssl/${DOMAIN_NAME}.key:/certs/key.pem
+
+  admin:
+    image: mailu/admin:1_7
+    restart: always
+    env_file: mailu.env
+    volumes:
+      - "/data/mailu/data:/data"
+      - "/data/mailu/dkim:/dkim"
+    depends_on:
+      - redis
+
+  imap:
+    image: mailu/dovecot:1_7
+    restart: always
+    env_file: mailu.env
+    volumes:
+      - "/data/mailu/mail:/mail"
+      - "/data/mailu/overrides:/overrides"
+    depends_on:
+      - front
+
+  smtp:
+    image: mailu/postfix:1_7
+    restart: always
+    env_file: mailu.env
+    volumes:
+      - "/data/mailu/overrides:/overrides"
+    depends_on:
+      - front
+
+  antispam:
+    image: mailu/rspamd:1_7
+    restart: always
+    env_file: mailu.env
+    volumes:
+      - "/data/mailu/filter:/var/lib/rspamd"
+      - "/data/mailu/dkim:/dkim"
+      - "/data/mailu/overrides/rspamd:/etc/rspamd/override.d"
+    depends_on:
+      - front
+
+  webmail:
+    image: mailu/rainloop:1_7
+    restart: always
+    env_file: mailu.env
+    volumes:
+      - "/data/mailu/webmail:/data"
+    depends_on:
+      - imap
+
+  database:
+    image: mailu/postgresql:1_7
+    restart: always
+    env_file: mailu.env
+    volumes:
+      - "/data/mailu/data/psql_db:/data"
+      - "/data/mailu/data/psql_backup:/backup"
+
+  # TRAEFIK
+  traefik:
+    image: traefik:alpine
+    command:
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+      - "--certificatesresolvers.mainresolver.acme.httpchallenge=true"
+      - "--certificatesresolvers.mainresolver.acme.httpchallenge.entrypoint=web"
+      - "--certificatesresolvers.myresolver.acme.email=d34dplayer@protonmail.com"
+      - "--certificatesresolvers.mainresolver.acme.storage=letsencrypt/acme.json"
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+      - "/data/traefik/:/letsencrypt"
+
+  certdumper:
+    restart: always
+    image: mailu/traefik-certdumper:$VERSION
+    environment:
+      - DOMAIN=${DOMAIN_NAME}
+    volumes:
+      - "/data/traefik:/traefik"
+      - "/data/mailu/certs:/output"
+
+  # OTHER SERVICES
+  website:
+    build:
+      context: ./web
+      args:
+        - VUE_APP_DOMAIN_NAME=${DOMAIN_NAME}
+        - VUE_APP_MAIL_SERVICE_ID=${MAIL_SERVICE_ID}
+        - VUE_APP_MAIL_TEMPLATE_ID=${MAIL_TEMPLATE_ID}
+        - VUE_APP_MAIL_USER_ID=${MAIL_USER_ID}
+    restart: always
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.website.rule=Host(`${DOMAIN_NAME}`)"
+      - "traefik.http.routers.website.entrypoints=websecure"
+      - "traefik.http.routers.website.tls.certresolver=mainresolver"
+networks:
+  default:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 192.168.203.0/24
