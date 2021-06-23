@@ -7,6 +7,7 @@ ARG VUE_APP_DOMAIN_NAME=localhost
 ARG VUE_APP_MAIL_SERVICE_ID=none
 ARG VUE_APP_MAIL_TEMPLATE_ID=none
 ARG VUE_APP_MAIL_USER_ID=none
+ARG VUE_APP_RECAPTCHA_ID=none
 # prerender deps
 RUN apt-get update && \
     apt-get -y install ca-certificates fonts-liberation                         \

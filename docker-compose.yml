@@ -133,6 +133,7 @@ services:
         - VUE_APP_MAIL_SERVICE_ID=${MAIL_SERVICE_ID}
         - VUE_APP_MAIL_TEMPLATE_ID=${MAIL_TEMPLATE_ID}
         - VUE_APP_MAIL_USER_ID=${MAIL_USER_ID}
+        - VUE_APP_RECAPTCHA_ID=${RECAPTCHA_ID}
     restart: always
     labels:
       - "traefik.enable=true"
