@@ -108,16 +108,20 @@
         </b-form-group>
       </b-col>
     </b-row>
-    <b-button block type="submit" variant="primary" :disabled="disabled"
-      >Envoyer</b-button
-    >
+    <vue-recaptcha :sitekey="recaptchaID" loadRecaptchaScript>
+      <b-button block type="submit" variant="primary" :disabled="disabled">
+        Envoyer
+      </b-button>
+    </vue-recaptcha>
   </b-form>
 </template>
 
 <script>
 import emailjs from "emailjs-com";
+import VueRecaptcha from "vue-recaptcha";
 
 export default {
+  components: { VueRecaptcha },
   data() {
     return {
       alert: "",
@@ -125,6 +129,7 @@ export default {
       serviceID: process.env.VUE_APP_MAIL_SERVICE_ID,
       templateID: process.env.VUE_APP_MAIL_TEMPLATE_ID,
       userID: process.env.VUE_APP_MAIL_USER_ID,
+      recaptchaID: process.env.VUE_APP_RECAPTCHA_ID,
       disabled: false,
     };
   },
