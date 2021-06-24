@@ -47,6 +47,27 @@ export default {
   text-align: center;
   font-family: Nature;
   font-size: 5rem !important;
-  height: 5.6rem;
+}
+
+.navbar-brand.logo {
+  white-space: normal;
+  margin-right: 0;
+  max-height: 14rem;
+  width: 100%;
+}
+
+.navbar-toggler {
+  width: 100%;
+}
+
+@media screen and (min-width: 600px) {
+  .navbar-brand.logo {
+    height: 5.6rem;
+    margin-right: 1rem;
+    width: auto;
+  }
+  .navbar-toggler {
+    width: auto;
+  }
 }
 </style>

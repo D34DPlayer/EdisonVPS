@@ -15,14 +15,6 @@
           : alert
       }}
     </b-alert>
-    <b-alert
-      :show="alert != ''"
-      variant="danger"
-      dissmissable
-      @dissmissed="alert = ''"
-    >
-      {{ alert }}
-    </b-alert>
     <b-row>
       <b-col cols="6">
         <b-form-group
@@ -108,11 +100,13 @@
         </b-form-group>
       </b-col>
     </b-row>
-    <vue-recaptcha :sitekey="recaptchaID" loadRecaptchaScript>
-      <b-button block type="submit" variant="primary" :disabled="disabled">
+    <b-row>
+      <vue-recaptcha :sitekey="recaptchaID" loadRecaptchaScript>
+      </vue-recaptcha>
+      <b-button block type="submit" variant="primary" class="contactSubmit" :disabled="disabled">
         Envoyer
       </b-button>
-    </vue-recaptcha>
+    </b-row>
   </b-form>
 </template>
 
@@ -135,6 +129,9 @@ export default {
   },
   methods: {
     onSubmit(ev) {
+      if (!ev.target["g-recaptcha-response"].value) {
+        this.alert = "Veuillez remplir le reCAPTCHA";
+      }
       this.disabled = true;
       emailjs
         .sendForm(this.serviceID, this.templateID, ev.target, this.userID)
@@ -145,7 +142,7 @@ export default {
         })
         .catch((e) => {
           console.error(e);
-          this.error = e;
+          this.alert = "Une erreur est survenue, veuillez réessayer plus tard.";
         });
     },
   },
@@ -155,5 +152,10 @@ export default {
 <style>
 .contactForm {
   margin-bottom: 1rem;
+}
+.contactSubmit {
+  width: auto;
+  margin-left: auto;
+  margin-right: 15px;
 }
 </style>
