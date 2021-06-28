@@ -14,7 +14,7 @@
 export default {
   computed: {
     photos() {
-      let ctx = require.context("@/assets/photos", false, /.+_STAR\.jpg/);
+      let ctx = require.context("@/assets/photos", false, /.+_STAR\.webp/);
       return ctx
         .keys()
         .reverse()
