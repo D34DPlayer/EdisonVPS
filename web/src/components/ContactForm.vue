@@ -103,7 +103,13 @@
     <b-row>
       <vue-recaptcha :sitekey="recaptchaID" loadRecaptchaScript>
       </vue-recaptcha>
-      <b-button block type="submit" variant="primary" class="contactSubmit" :disabled="disabled">
+      <b-button
+        block
+        type="submit"
+        variant="primary"
+        class="contactSubmit"
+        :disabled="disabled"
+      >
         Envoyer
       </b-button>
     </b-row>

@@ -45,28 +45,19 @@ export default {
   background-clip: text;
   -webkit-text-fill-color: transparent;
   text-align: center;
-  font-family: Nature;
-  font-size: 5rem !important;
+  font-family: Nature, fantasy;
+  font-size: 5rem;
 }
 
 .navbar-brand.logo {
-  white-space: normal;
-  margin-right: 0;
-  max-height: 14rem;
-  width: 100%;
+  width: calc(100% -5rem);
+  font-size: clamp(2.2rem, calc(26vw - 5rem), 5rem);
+  height: clamp(2rem, 14vw, 5.6rem);
 }
 
-.navbar-toggler {
-  width: 100%;
-}
-
-@media screen and (min-width: 600px) {
+@media screen and (min-width: 992px) {
   .navbar-brand.logo {
-    height: 5.6rem;
     margin-right: 1rem;
-    width: auto;
-  }
-  .navbar-toggler {
     width: auto;
   }
 }
