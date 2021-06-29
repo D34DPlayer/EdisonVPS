@@ -25,6 +25,14 @@
           <div class="logo">Les Jardins d'Edison</div>
         </b-col>
       </b-row>
+      <b-row>
+        <b-col class="copyright"
+          >Création du site :
+          <b-link href="https://www.d34d.fun"
+            >Carlos Ruiz Herrera</b-link
+          ></b-col
+        >
+      </b-row>
     </b-container>
   </footer>
 </template>
@@ -67,6 +75,12 @@ footer {
       justify-content: center;
       margin: 0.3rem;
     }
+  }
+  .copyright {
+    text-align: center;
+    border-top: var(--gray) 1px solid;
+    color: var(--gray);
+    padding-top: 0.5rem;
   }
 }
 </style>
